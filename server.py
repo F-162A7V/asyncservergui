@@ -18,7 +18,10 @@ def main(ip,port):
         port = 11111
 
     server = socket.socket()
-    server.bind(())
+    server.bind((ip,port))
+    server.listen(100)
+    while True:
+        cli = server.accept()
 
 
 
@@ -30,5 +33,6 @@ def main(ip,port):
 
 
 
-if __name__ == "main":
-    main()
+
+if __name__ == "__main__":
+    main('127.0.0.1',11111)

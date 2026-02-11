@@ -5,24 +5,30 @@ import winclass
 
 
 stop = False
-name = ""
-ip = ""
-port = ""
-
+mail = ""
+password = ""
 
 def craft_msg(inpt):
     pass
 
-def c1(text):
-    global ip
-    print(text)
-    ip = text
+def logwin():
+    win = winclass.Window("LOGIN","200x300")
+    namefield = winclass.customEntry(win, 25, 25, lbl="Enter Name:")
+    passfield = winclass.customEntry(win, 25, 25, (0, 25), "*", lbl="Enter Password:")
+    send = winclass.customButton(win,25,"submit",command=logret(namefield,passfield,win),offset=(0,40))
+    win.root.mainloop()
 
-def c2(text):
-    global port
-    print(text)
-    port = text
+def logret(namefield,passfield,prntwin):
+    returntup = (namefield.text_var.get(), passfield.text_var.get())
+    prntwin.root.destroy()
+    print(returntup)
+    return returntup
 
+def c2():
+    global mail
+    global password
+    print(mail)
+    print(password)
 
 def sendfunc(sock,notuple):
     global stop
@@ -38,23 +44,10 @@ def handle_server(cli):
     pass
 
 def main(ip,port):
-    global name
-    if not name:
-        name = str(random.randint(0,10000))
-    if not ip:
-        ip = "127.0.0.1"
-    if not port:
-        port = 11111
+    sock = socket.socket()
+    sock.connect((ip,port))
     threads = []
-    windowthread = threading.Thread(target=window)
-    threads.append(windowthread)
-    windowthread.start()
-    client = socket.socket()
-    try:
-        client.connect((ip,port))
-        handle_server(client)
-    except TimeoutError:
-        print(f"unable to connect to {ip}  at  {port}")
+    logwin()
 
 
 

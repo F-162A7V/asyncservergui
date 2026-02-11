@@ -25,14 +25,19 @@ class customEntry():
         self.parentwin.entry = ttk.Entry(self.parentwin.root, show=shw,textvariable=self.text_var)
         self.parentwin.entry.pack(padx=offset[0], pady=offset[1])
 
-    def addButton(self,h,w,offset=0):
+class customButton():
+    def __init__(self,parentwin,w,name,command,offset=0):
         if type(offset) != tuple:
-            offset = (0,0)
-        self.but
+            offset = (0, 0)
+        self.parentwin = parentwin
+        self.w = w
+        self.offset = offset
+        self.parentwin.b1 = ttk.Button(name=name,width=w,command=command)
+        self.parentwin.b1.pack(padx=offset[0],pady=offset[1])
 
 
 
-win = Window("Client","200x300")
-namefield = customEntry(win,25,25,lbl="Enter Name:")
-passfield = customEntry(win,25,25,(0,25),"*",lbl="Enter Password:")
-win.root.mainloop()
+#win = Window("Client","200x300")
+#namefield = customEntry(win,25,25,lbl="Enter Name:")
+#passfield = customEntry(win,25,25,(0,25),"*",lbl="Enter Password:")
+#win.root.mainloop()
