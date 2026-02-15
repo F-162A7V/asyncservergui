@@ -54,7 +54,7 @@ def logret(namefield,passfield,prntwin,skt):
     prntwin.root.destroy()
     return
 
-def signret(namefield,passfield,prntwin,skt):
+def signret(namefield,passfield,prntwin,skt,type):
     global stop
     data = f"SIGN|{namefield.text_var.get()}|{passfield.text_var.get()}"
     lngth = struct.pack("I", len(data))
@@ -64,14 +64,27 @@ def signret(namefield,passfield,prntwin,skt):
     except:
         stop = True
     prntwin.root.destroy()
-    resp = 
+    resp = skt.recv(4)
+    length = struct.unpack("I",resp)
+    resp = skt.recv(length)
+    fields = resp.split(b'|')
+    if fields[0] == b"SIGR" and fields[1] == b"T":
+        sendMsg(skt)
     return
 
 
-def sendfunc(sock,notuple):
-    global stop
-    while not stop:
-        pass
+def sendMsg(label,sock,parent=0):
+    global current_window
+    if parent:
+        parent.root.destroy()
+    win = winclass.Window("SIGNUP", "200x300")
+    current_window = win
+    namefield = winclass.customEntry(win, 25, 25, lbl="Enter Name:")
+    passfield = winclass.customEntry(win, 25, 25, (0, 25), "*", lbl="Enter Password:")
+    send = winclass.customButton(win, 25, "Submit", command=lambda: signret(namefield, passfield, win, sock),offset=(0, 40))
+    win.root.mainloop()
+
+
 
 
 
