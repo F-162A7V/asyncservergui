@@ -1,12 +1,13 @@
 __author__ = "F-162A7V"
 
-import socket, struct, PyQt5, sys, traceback, threading, pickle
+import socket, struct, threading, pickle, random
 import senderobject
+from hashlib import sha256
 
 users = {}
 diction = senderobject.Sender()
 stop = False
-
+pepper = "A4-D#8K.;"
 
 def handl_cli(sock,user):
     global stop, diction
@@ -26,12 +27,15 @@ def handl_cli(sock,user):
 
 def parse_msg(fields,sock):
     global diction
+    global pepper
     try:
         code = fields[0]
         msg = ''
         if fields[0] == 'SIGN':
             if fields[1] not in users:
-                users[fields[1]] = fields[2]
+                salt = sha256(str(random.randint(0,10000000)).encode()).hexdigest()[:6]
+                password = fields[2] + salt + pepper
+                users[fields[1]] = [sha256(password.encode()).hexdigest(),salt]
                 diction.socksender[fields[1]] = []
                 with open("users.pkl", "wb") as fil:
                     pickle.dump(users, fil)
@@ -40,15 +44,16 @@ def parse_msg(fields,sock):
                 msg = 'EROR|``|004'
         if fields[0] == "LOGN":
             if fields[1] in users:
-                if users[fields[1]] == fields[2]:
-
-                    msg = "LOGR"
+                password = fields[2] + users[fields[1]][1] + pepper
+                enc = sha256(password.encode()).hexdigest()
+                if users[fields[1]][0] == enc:
+                        msg = "LOGR"
                 else:
                     msg = "EROR|``|002"
             else:
                 msg = "EROR|``|002"
         if fields[0] == "FGTP":
-            pass
+            msg = f'FGTR'
         if fields[0] == "MESG":
             keys = diction.socksender.keys()
             print(diction.socksender)

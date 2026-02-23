@@ -4,43 +4,51 @@ import socket, struct, sys, threading
 import traceback
 
 import winclass
+from asyncservergui.winclass import customEntry
 
 current_window = ""
 stop = False
 username = ""
 threads = []
 
-def craft_msg(inpt):
-    pass
 
 
 def Pick(sock):
     global current_window
-    win = winclass.Window("LOGIN", "200x200")
+    win = winclass.Window("LOGIN", "200x400")
     current_window = win
     sign = winclass.customButton(win, 25, "LOGIN", command=lambda: logwin("",sock,0,win),offset=(0, 20))
     log = winclass.customButton(win, 25, "SIGNUP", command=lambda: logwin("",sock,1,win),offset=(0, 30))
+    forgt = winclass.customButton(win, 25, "FORGOT PASS", command=lambda: logwin("",sock,2,win),offset=(0, 40))
     win.root.mainloop()
 
 def logwin(label, sock, typef, parent=0):
     global current_window
     if parent:
         parent.root.destroy()
-    if typef:
+    if typef == 1:
         win = winclass.Window("SIGNUP","200x300")
+    elif typef == 2:
+        win = winclass.Window("FORGOT PASS","200x300")
     else:
         win = winclass.Window("LOGIN","200x300")
     current_window = win
-    namefield = winclass.customEntry(win, 25, 25, lbl="Enter Name:")
-    passfield = winclass.customEntry(win, 25, 25, (0, 25), "*", lbl="Enter Password:")
-    send = winclass.customButton(win, 25, "Submit", command=lambda: logret(namefield, passfield, win, sock, typef), offset=(0, 40))
+    if typef!=2:
+        namefield = winclass.customEntry(win, 25, 25, lbl="Enter Name:")
+        passfield = winclass.customEntry(win, 25, 25, (0, 25), "*", lbl="Enter Password:")
+        send = winclass.customButton(win, 25, "Submit", command=lambda: logret(win, sock, typef,namefield,passfield), offset=(0, 40))
+    else:
+        emfield = winclass.customEntry(win, 25, 25, (0, 25), "", lbl="Enter Email:")
+        send = winclass.customButton(win, 25, "Submit", command=lambda: logret(win, sock, typef,email=emfield), offset=(0, 40))
     win.root.mainloop()
 
-def logret(namefield, passfield, prntwin, skt, typef):
+def logret(prntwin, skt, typef,namefield=customEntry,passfield=customEntry,email=customEntry):
     global stop, username
     username = namefield.text_var.get()
-    if typef:
+    if typef == 1:
         data = f"SIGN|``|{namefield.text_var.get()}|``|{passfield.text_var.get()}"
+    elif typef == 2:
+        data = f'FGTP|``|{email}'
     else:
         data = f"LOGN|``|{namefield.text_var.get()}|``|{passfield.text_var.get()}"
     lngth = struct.pack("I",len(data))
